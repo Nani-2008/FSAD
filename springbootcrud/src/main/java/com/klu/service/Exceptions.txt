@@ -1,0 +1,70 @@
+There are various types of exceptions in Spring Boot:
+
+1. Local Exception Handling:
+   - Handled by @ExceptionHandler annotation
+   - Defined within a specific controller
+   - Only handles exceptions thrown by that controller
+   - Example:
+     @ExceptionHandler(ResourceNotFoundException.class)
+     public ResponseEntity<String> handleNotFound(ResourceNotFoundException ex) {
+         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+     }
+
+2. Global Exception Handling:
+   - Handled by @ControllerAdvice or @RestControllerAdvice annotation
+   - Applies to all controllers in the application
+   - Provides centralized exception handling
+   
+   DIFFERENCE BETWEEN @ControllerAdvice vs @RestControllerAdvice:
+   
+   @ControllerAdvice:
+   - Returns views (HTML pages, JSP, Thymeleaf templates)
+   - Used for traditional MVC applications
+   - Requires @ResponseBody on each handler method to return JSON/XML
+   - Example:
+     @ControllerAdvice
+     public class GlobalExceptionHandler {
+         @ExceptionHandler(Exception.class)
+         @ResponseBody  // Required to return JSON
+         public ErrorResponse handleException(Exception ex) {
+             return new ErrorResponse(ex.getMessage());
+         }
+     }
+   
+   @RestControllerAdvice:
+   - Automatically returns JSON/XML (serialized objects)
+   - Used for RESTful web services
+   - Combines @ControllerAdvice + @ResponseBody
+   - No need for @ResponseBody on handler methods
+   - Example:
+     @RestControllerAdvice
+     public class GlobalExceptionHandler {
+         @ExceptionHandler(Exception.class)
+         public ResponseEntity<ErrorResponse> handleException(Exception ex) {
+             return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+         }
+     }
+   
+   Summary: Use @RestControllerAdvice for REST APIs, @ControllerAdvice for traditional web apps
+
+3. Custom Exceptions:
+   - Create custom exception classes extending RuntimeException
+   - Example:
+     public class ResourceNotFoundException extends RuntimeException {
+         public ResourceNotFoundException(String message) {
+             super(message);
+         }
+     }
+
+4. Common HTTP Status Codes:
+   - 400 BAD_REQUEST - Invalid input
+   - 404 NOT_FOUND - Resource not found
+   - 500 INTERNAL_SERVER_ERROR - Server error
+   - 201 CREATED - Resource created successfully
+   - 200 OK - Request successful
+
+5. ResponseEntity:
+   - Used to return custom HTTP responses
+   - Can include status code, headers, and body
+   - Example: new ResponseEntity<>(data, HttpStatus.OK)
+
